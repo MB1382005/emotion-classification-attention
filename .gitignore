@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+*.zip
+*.keras
+*.h5
+saved_emotion_model/transformer/*.safetensors
+saved_emotion_model/transformer/*.bin
+saved_emotion_model/transformer/*.model
+glove_data/
+*_ckpts/
+.ipynb_checkpoints/

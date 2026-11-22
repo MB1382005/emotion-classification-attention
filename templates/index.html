@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emotion Classification with Attention</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="layout">
+    <!-- Dark Navy Sidebar -->
+    <aside class="sidebar">
+      <div>
+        <div class="sidebar-brand">
+          <div class="brand-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M9.5 3a3.5 3.5 0 0 0-3.5 3.5c0 .5.1 1 .3 1.4A3.5 3.5 0 0 0 4 11.2c0 1.4.8 2.6 2 3.1V17a3 3 0 0 0 3 3h1V3h-.5z"/>
+              <path d="M14.5 3a3.5 3.5 0 0 1 3.5 3.5c0 .5-.1 1-.3 1.4A3.5 3.5 0 0 1 20 11.2c0 1.4-.8 2.6-2 3.1V17a3 3 0 0 1-3 3h-1V3h.5z"/>
+            </svg>
+          </div>
+          <div class="brand-title">Emotion Classification<br/><span>with Attention</span></div>
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-item active" data-section="home">Home</button>
+          <button class="nav-item" data-section="models">Models</button>
+          <button class="nav-item" data-section="about">About</button>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="model-chip" id="sidebarModel">Model: Loading...</div>
+        <p class="tagline">Understand Emotions,<br/>Powered by AI</p>
+      </div>
+    </aside>
+
+    <!-- Main Dashboard -->
+    <main class="main">
+      <!-- Top Header -->
+      <header class="topbar">
+        <div>
+          <h1 class="page-title">Emotion Classification<br/>with <span class="accent-text">Attention</span></h1>
+          <p class="page-sub">Detect 6 core emotions in text using deep learning and attention mechanisms</p>
+        </div>
+
+        <div class="emotion-pills" id="emotionPills">
+          <span class="epill ep-joy">😊 Joy</span>
+          <span class="epill ep-sadness">😢 Sadness</span>
+          <span class="epill ep-anger">😡 Anger</span>
+          <span class="epill ep-fear">😨 Fear</span>
+          <span class="epill ep-surprise">😮 Surprise</span>
+          <span class="epill ep-disgust">🤢 Disgust</span>
+        </div>
+      </header>
+
+      <!-- HOME SECTION -->
+      <section class="section active" id="sec-home">
+        <!-- Input Card -->
+        <div class="card input-card">
+          <div class="card-kicker">Enter Your Text</div>
+          <div class="input-row">
+            <input
+              id="textInput"
+              type="text"
+              placeholder="e.g. I'm so happy to see you again!"
+              autocomplete="off"
+            />
+            <button id="predictBtn" class="predict-btn">Predict</button>
+          </div>
+          <div class="sample-row">
+            <span class="sample-label">Try:</span>
+            <button class="sample-chip" data-text="I am so thrilled and grateful that we finally won!">Joy</button>
+            <button class="sample-chip" data-text="I feel heartbroken and lonely ever since they left.">Sadness</button>
+            <button class="sample-chip" data-text="I am furious that they lied to us and wasted our time.">Anger</button>
+            <button class="sample-chip" data-text="I am terrified of walking home alone in the dark tonight.">Fear</button>
+            <button class="sample-chip" data-text="Wait what?! I cannot believe you actually pulled that off!">Surprise</button>
+            <button class="sample-chip" data-text="This is absolutely disgusting and makes me sick.">Disgust</button>
+          </div>
+        </div>
+
+        <div class="error-box hidden" id="errorBox"></div>
+
+        <!-- Prediction Result + Attention Heatmap -->
+        <div class="card result-card">
+          <div class="result-banner">Prediction Result &amp; Attention Explanation</div>
+          <div class="result-grid">
+            <div class="result-left">
+              <div class="emoji-circle" id="resEmoji">😊</div>
+              <div class="result-info">
+                <div class="res-sub">Predicted Emotion:</div>
+                <div class="res-emotion" id="resEmotion">Joy</div>
+                <div class="res-conf">Confidence: <strong id="resConf">—</strong></div>
+                <div class="conf-track">
+                  <div class="conf-fill" id="confFill" style="width: 0%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="result-right">
+              <div class="attn-title">Attention Heatmap</div>
+              <div class="token-strip" id="tokenStrip">
+                <span class="token-placeholder">Type a sentence and click Predict to highlight which words drive the emotion.</span>
+              </div>
+              <div class="attn-legend">
+                <span>Lower Attention</span>
+                <div class="legend-bar"></div>
+                <span>Higher Attention</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live 6-Emotion Scores (Compact & Dynamic) -->
+        <div class="card mini-card" id="liveProbsCard">
+          <div class="mini-title">Live Emotion Probabilities</div>
+          <div class="live-probs" id="liveProbs">
+            <p class="muted-note">Run a prediction above to see live probabilities across all 6 emotions.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODELS SECTION (All Visualizations & Evaluation Results) -->
+      <section class="section" id="sec-models">
+        <div class="analytics-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 18px;">
+          <div class="card mini-card">
+            <div class="mini-title">Model Comparison (Accuracy)</div>
+            <div class="bar-chart" id="modelChart"></div>
+          </div>
+
+          <div class="card mini-card">
+            <div class="mini-title">Per-Class Performance</div>
+            <div class="per-class-list" id="perClassList"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="mini-title">Full Model Benchmark Table</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Accuracy</th>
+                <th>Macro F1</th>
+                <th>Weighted F1</th>
+                <th>Macro Precision</th>
+                <th>Macro Recall</th>
+              </tr>
+            </thead>
+            <tbody id="benchTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="mini-title">All 7 Models Comparison &amp; 3-Model Ensemble Confusion Matrix (82.93% Acc)</div>
+          <img src="/static/charts/nb/cell_27_img_10.png" alt="All 7 Models Comparison and Ensemble Confusion Matrix" style="width:100%;border-radius:12px;border:1px solid #e2e8f0;" />
+        </div>
+
+        <div class="card">
+          <div class="mini-title">Dataset Exploration — 6 Core Emotions &amp; Word Lengths</div>
+          <img src="/static/charts/nb/cell_8_img_1.png" alt="Dataset EDA" style="width:100%;border-radius:12px;border:1px solid #e2e8f0;" />
+        </div>
+
+        <div class="card">
+          <div class="mini-title">4-Model Confusion Matrices (LSTM, GRU, BiLSTM+Attention, DistilBERT)</div>
+          <img src="/static/charts/nb/cell_19_img_3.png" alt="4-Model Confusion Matrices" style="width:100%;border-radius:12px;border:1px solid #e2e8f0;" />
+        </div>
+
+        <div class="card">
+          <div class="mini-title">BiLSTM + Attention — Token-Level Attention Heatmaps (6 Emotions)</div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;">
+            <img src="/static/charts/nb/cell_21_img_4.png" alt="Attention Heatmap 1" style="width:100%;border-radius:10px;border:1px solid #e2e8f0;" />
+            <img src="/static/charts/nb/cell_21_img_5.png" alt="Attention Heatmap 2" style="width:100%;border-radius:10px;border:1px solid #e2e8f0;" />
+            <img src="/static/charts/nb/cell_21_img_6.png" alt="Attention Heatmap 3" style="width:100%;border-radius:10px;border:1px solid #e2e8f0;" />
+            <img src="/static/charts/nb/cell_21_img_7.png" alt="Attention Heatmap 4" style="width:100%;border-radius:10px;border:1px solid #e2e8f0;" />
+            <img src="/static/charts/nb/cell_21_img_8.png" alt="Attention Heatmap 5" style="width:100%;border-radius:10px;border:1px solid #e2e8f0;" />
+            <img src="/static/charts/nb/cell_21_img_9.png" alt="Attention Heatmap 6" style="width:100%;border-radius:10px;border:1px solid #e2e8f0;" />
+          </div>
+        </div>
+      </section>
+
+      <!-- ABOUT SECTION -->
+      <section class="section" id="sec-about">
+        <div class="card">
+          <div class="mini-title">Project Overview</div>
+          <p class="about-text">
+            This project classifies text into <strong>6 core Ekman emotions</strong> (Joy, Sadness, Anger, Fear, Surprise, Disgust)
+            using Google's <strong>GoEmotions</strong> dataset. It benchmarks <strong>LSTM</strong>, <strong>GRU</strong>, and
+            <strong>BiLSTM + Bahdanau Attention</strong> (initialized with pre-trained GloVe 100d embeddings) against a
+            fine-tuned <strong>DistilBERT</strong> Transformer trained with the HuggingFace Trainer API.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
